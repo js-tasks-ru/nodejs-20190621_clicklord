@@ -30,20 +30,22 @@ server.on('request', (req, res) => {
 });
 
 const sendFile = async (filepath, res) => {
-  let isError = null;
   fs.stat(filepath, (err, stats) => {
     if (err) {
-      isError = err;
       res.statusCode = '404';
       res.end('File not found');
       return;
     }
-    if (!stats.isFile()) res.status(404).send('is not file');
+    if (!stats.isFile()) {
+      res.statusCode = '404';
+      res.send('is not file');
+    };
   });
-  if (isError) return;
+  if (res.finished) return;
   const readFileStream = fs.createReadStream(filepath);
-  res.statusCode = '200';
-  const mimetype = mime.lookup(filepath); 
+  const mimetype = mime.lookup(filepath);
+  
+  res.statusCode = '200'; 
   res.setHeader('Content-Type', mimetype + "; charset=utf-8");
   readFileStream
     .on('error', err => {
