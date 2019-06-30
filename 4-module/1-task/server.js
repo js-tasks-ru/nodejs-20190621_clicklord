@@ -2,7 +2,6 @@ const url = require('url');
 const http = require('http');
 const path = require('path');
 const fs = require('fs');
-const mime = require("mime-types");
 
 const server = new http.Server();
 
@@ -43,10 +42,8 @@ const sendFile = async (filepath, res) => {
   });
   if (res.finished) return;
   const readFileStream = fs.createReadStream(filepath);
-  const mimetype = mime.lookup(filepath);
   
   res.statusCode = '200'; 
-  res.setHeader('Content-Type', mimetype + "; charset=utf-8");
   readFileStream
     .on('error', err => {
       res.statusCode = '500';
