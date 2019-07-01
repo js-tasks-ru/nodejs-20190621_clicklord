@@ -1,17 +1,25 @@
 const url = require('url');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
+const LimitSizeStream = require('./LimitSizeStream');
+const LimitExceededError = require('./LimitExceededError');
 
 const server = new http.Server();
 
 server.on('request', (req, res) => {
   const pathname = url.parse(req.url).pathname.slice(1);
-
+  const pathnameArray = url.parse(req.url).pathname.split('/');
+  if (pathnameArray.length > 2) {
+    res.statusCode = 400;
+    res.end('Bad request');
+    return;
+  };
   const filepath = path.join(__dirname, 'files', pathname);
 
   switch (req.method) {
     case 'POST':
-
+      receiveFile(req, res, filepath);
       break;
 
     default:
@@ -19,5 +27,68 @@ server.on('request', (req, res) => {
       res.end('Not implemented');
   }
 });
+
+const receiveFile = (req, res, filepath) => {
+  fs.stat(filepath, (err) => {
+    if (!err) {
+      res.statusCode = 409;
+      res.end('already exists');
+      return;
+    } else if (err.code === 'ENOENT') {
+      writeData(req, res, filepath);
+    }
+  });
+};
+
+const writeData = (req, res, filepath) => {
+  const writeStream = fs.createWriteStream(filepath, {emitClose: true});
+  const limitStream = new LimitSizeStream({limit: 1048576});
+  req
+      .on('error', (err) => {
+        writeStream.destroy(err);
+      })
+      .on('close', () => {
+        if (req.aborted) writeStream.destroy(new Error('connection close'));
+      })
+      .pipe(limitStream)
+      .on('error', (err) => {
+        writeStream.destroy(err);
+      })
+      .pipe(writeStream)
+      .on('error', (err) => {
+        removeFileOnError(err, res, filepath);
+      })
+      .on('close', () => {
+        checkCompleteUpload(req, res, filepath);
+      });
+};
+
+function removeFileOnError(err, res, filepath) {
+  if (err instanceof LimitExceededError) {
+    res.statusCode = 413;
+    res.end('file length limit');
+  } else if (err.message == 'connection aborted') {
+    console.error(err.message);
+  } else {
+    if (!res.finished) {
+      res.statusCode = 500;
+      res.end('internal error');
+    };
+  };
+  fs.unlink(filepath, (error) => {
+    if (error) {
+      console.error(err.message);
+    } else {
+      console.debug('Файл удалён');
+    };
+  });
+};
+
+function checkCompleteUpload(req, res, filepath) {
+  if (!res.finished) {
+    res.statusCode = 201;
+    res.end('upload complete');
+  };
+};
 
 module.exports = server;
