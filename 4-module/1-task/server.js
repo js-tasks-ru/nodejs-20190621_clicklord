@@ -18,8 +18,10 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'GET':
-        sendFile(filepath, res)
-        .catch(err => {console.log(err)});
+      sendFile(filepath, res)
+          .catch((err) => {
+            console.log(err);
+          });
       break;
 
     default:
@@ -42,14 +44,13 @@ const sendFile = async (filepath, res) => {
   });
   if (res.finished) return;
   const readFileStream = fs.createReadStream(filepath);
-  
-  res.statusCode = '200'; 
+  res.statusCode = '200';
   readFileStream
-    .on('error', err => {
-      res.statusCode = '500';
-      res.end(err);
-    })
-    .pipe(res);
+      .on('error', (err) => {
+        res.statusCode = '500';
+        res.end(err);
+      })
+      .pipe(res);
 };
 
 module.exports = server;
