@@ -8,13 +8,13 @@ class LineSplitStream extends stream.Transform {
   }
   _transform(chunk, encoding, callback) {
     this.buffer += chunk.toString((encoding === 'buffer')?'utf8':encoding);
-    let arrayStrings = this.buffer.split(os.EOL);
-    let arrayStringsLast = arrayStrings.length - 1;
-    for (let i = 0; i < arrayStringsLast; i++){
+    const arrayStrings = this.buffer.split(os.EOL);
+    const arrayStringsLast = arrayStrings.length - 1;
+    for (let i = 0; i < arrayStringsLast; i++) {
       this.push(arrayStrings[i]);
     };
-    this.buffer = arrayStrings[arrayStringsLast]; 
-    callback();  
+    this.buffer = arrayStrings[arrayStringsLast];
+    callback();
   }
 
   _flush(callback) {
