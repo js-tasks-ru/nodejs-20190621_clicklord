@@ -67,21 +67,13 @@ function removeFileOnError(err, res, filepath) {
   if (err instanceof LimitExceededError) {
     res.statusCode = 413;
     res.end('file length limit');
-  } else if (err.message == 'connection aborted') {
-    console.error(err.message);
-  } else {
+  } else if (err.message != 'connection aborted') {
     if (!res.finished) {
       res.statusCode = 500;
       res.end('internal error');
     };
   };
-  fs.unlink(filepath, (error) => {
-    if (error) {
-      console.error(err.message);
-    } else {
-      console.debug('Файл удалён');
-    };
-  });
+  fs.unlink(filepath, () => {});
 };
 
 function checkCompleteUpload(req, res, filepath) {
