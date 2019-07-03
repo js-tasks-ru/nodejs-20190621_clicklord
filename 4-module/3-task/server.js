@@ -17,7 +17,7 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'DELETE':
-      checkAccessFile(res, filepath);
+      deleteFile(res, filepath);
       break;
 
     default:
@@ -26,23 +26,15 @@ server.on('request', (req, res) => {
   }
 });
 
-function checkAccessFile(res, filepath) {
-  fs.stat(filepath, (err) => {
-    if (!err) {
-      deleteFile(res, filepath);
-    } else if (err.code === 'ENOENT') {
-      res.statusCode = 404;
-      res.end('File not found');
-    }
-  });
-}
-
 function deleteFile(res, filepath) {
   fs.unlink(filepath, (err) => {
     if (!err) {
       res.statusCode = 200;
       res.end('File delete');
     } else if (err.code === 'ENOENT') {
+      res.statusCode = 404;
+      res.end('File not found');
+    } else {
       res.statusCode = 500;
       res.end('Internal error');
     }
