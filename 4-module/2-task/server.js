@@ -19,7 +19,7 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'POST':
-      receiveFile(req, res, filepath);
+      writeData(req, res, filepath);
       break;
 
     default:
@@ -28,20 +28,8 @@ server.on('request', (req, res) => {
   }
 });
 
-const receiveFile = (req, res, filepath) => {
-  fs.stat(filepath, (err) => {
-    if (!err) {
-      res.statusCode = 409;
-      res.end('already exists');
-      return;
-    } else if (err.code === 'ENOENT') {
-      writeData(req, res, filepath);
-    }
-  });
-};
-
 const writeData = (req, res, filepath) => {
-  const writeStream = fs.createWriteStream(filepath, {emitClose: true});
+  const writeStream = fs.createWriteStream(filepath, {emitClose: true, flags: 'wx'});
   const limitStream = new LimitSizeStream({limit: 1048576});
   req
       .on('error', (err) => {
@@ -56,7 +44,12 @@ const writeData = (req, res, filepath) => {
       })
       .pipe(writeStream)
       .on('error', (err) => {
-        removeFileOnError(err, res, filepath);
+        if (err.code === 'EEXIST') {
+          res.statusCode = 409;
+          res.end('already exists');
+        } else {
+          removeFileOnError(err, res, filepath);
+        };
       })
       .on('close', () => {
         checkCompleteUpload(req, res, filepath);
