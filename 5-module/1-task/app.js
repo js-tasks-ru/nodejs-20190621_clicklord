@@ -1,5 +1,5 @@
 const Koa = require('koa');
-const EventEmitter = require('events');
+const { once, EventEmitter } = require('events');
 const chatEventEmitter = new EventEmitter();
 const app = new Koa();
 
@@ -11,7 +11,8 @@ const router = new Router();
 
 router.get('/subscribe', async (ctx, next) => {
   try {
-    ctx.body = await subscribeClient();
+    const [value] = await once(chatEventEmitter, 'msg');
+    ctx.body = value;
   } catch (err) {
     ctx.body = err;
     ctx.throw(500);
@@ -32,13 +33,5 @@ router.post('/publish', async (ctx, next) => {
 });
 
 app.use(router.routes());
-
-function subscribeClient() {
-  return new Promise((resolve) => {
-    chatEventEmitter.once('msg', (msg) => {
-      resolve(msg);
-    });
-  });
-};
 
 module.exports = app;
