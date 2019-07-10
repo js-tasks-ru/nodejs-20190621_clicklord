@@ -32,4 +32,28 @@ const productSchema = new mongoose.Schema({
   
 });
 
+productSchema.virtual('id').get(function(){
+  return this._id.toHexString();
+});
+
+productSchema.set('toJSON', {
+  virtuals: true,
+  versionKey:false,
+  transform: function (doc, ret) {   delete ret._id  }
+});
+
+productSchema.index(
+  { 
+  title: 'text',
+  description: 'text'
+},
+ {
+  name: 'TextSearchIndex', 
+  weights: {
+    title: 10,
+    description: 5
+  },
+  default_language: "russian"
+});
+
 module.exports = connection.model('Product', productSchema);
