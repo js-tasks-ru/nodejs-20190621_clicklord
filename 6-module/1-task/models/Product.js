@@ -4,26 +4,26 @@ const connection = require('../libs/connection');
 const productSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-    required: true
+    required: true,
   },
-  category:{
+  category: {
     type: mongoose.Types.ObjectId,
     ref: 'Category',
-    required: true
+    required: true,
   },
-  subcategory:{
+  subcategory: {
     type: mongoose.Types.ObjectId,
-    required: true
+    required: true,
   },
-  images: [String]
+  images: [String],
 });
 
 module.exports = connection.model('Product', productSchema);

@@ -6,30 +6,56 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  
+
   description: {
     type: String,
     required: true,
   },
-  
+
   price: {
     type: Number,
     required: true,
   },
-  
+
   category: {
     type: mongoose.Types.ObjectId,
     ref: 'Category',
     required: true,
   },
-  
+
   subcategory: {
     type: mongoose.Types.ObjectId,
     required: true,
   },
-  
+
   images: [String],
-  
+
 });
+
+productSchema.virtual('id').get(function() {
+  return this._id.toHexString();
+});
+
+productSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: function(doc, ret) {
+    delete ret._id;
+  },
+});
+
+productSchema.index(
+    {
+      title: 'text',
+      description: 'text',
+    },
+    {
+      name: 'TextSearchIndex',
+      weights: {
+        title: 10,
+        description: 5,
+      },
+      default_language: 'russian',
+    });
 
 module.exports = connection.model('Product', productSchema);

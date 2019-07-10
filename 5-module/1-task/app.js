@@ -1,5 +1,5 @@
 const Koa = require('koa');
-const { once, EventEmitter } = require('events');
+const {once, EventEmitter} = require('events');
 const chatEventEmitter = new EventEmitter();
 const app = new Koa();
 
