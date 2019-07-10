@@ -4,16 +4,16 @@ const connection = require('../libs/connection');
 const subCategorySchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const categorySchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
-  subcategories: [subCategorySchema]
+  subcategories: [subCategorySchema],
 });
 
 module.exports = connection.model('Category', categorySchema);
