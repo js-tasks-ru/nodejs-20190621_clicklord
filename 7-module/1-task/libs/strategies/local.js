@@ -16,7 +16,7 @@ module.exports = new LocalStrategy(
         if (!validUserPasswd) return done(null, false, 'Невереный пароль');
         return done(null, findedUsers[0]);
       } catch (err) {
-        done(null, false, err);
+        done(err, false);
       }
     }
 );
