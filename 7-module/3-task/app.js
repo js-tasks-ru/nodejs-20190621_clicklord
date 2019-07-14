@@ -52,7 +52,7 @@ router.use(async (ctx, next) => {
   const currentToken = header.split(' ');
   if (!currentToken[1]) return next();
   try {
-    const session = await Session.findOne({token: 'token'}).populate('user');
+    const session = await Session.findOne({token: currentToken[1]}).populate('user');
     if (session === null) {
       throw new Error('Неверный аутентификационный токен');
     } else {

@@ -8,13 +8,13 @@ module.exports = new LocalStrategy(
       session: false},
     async function(username, password, done) {
       try {
-        const findedUsers = await User.find({email: username});
-        if (!findedUsers[0] || findedUsers.length > 1) {
+        const findedUser = await User.findOne({email: username});
+        if (!findedUser) {
           return done(null, false, 'Нет такого пользователя');
         };
-        const validUserPasswd = await findedUsers[0].checkPassword(password);
+        const validUserPasswd = await findedUser.checkPassword(password);
         if (!validUserPasswd) return done(null, false, 'Невереный пароль');
-        return done(null, findedUsers[0]);
+        return done(null, findedUser);
       } catch (err) {
         done(err, false);
       }
