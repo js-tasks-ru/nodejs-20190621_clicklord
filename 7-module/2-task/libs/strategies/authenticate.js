@@ -23,5 +23,5 @@ module.exports = function authenticate(strategy, email, displayName, done) {
       })
       .catch((err) => {
         return done(err, false);
-      })
+      });
 };
