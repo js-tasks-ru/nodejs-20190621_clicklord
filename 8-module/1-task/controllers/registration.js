@@ -19,14 +19,14 @@ module.exports.register = async (ctx, next) => {
     return next();
   } catch (err) {
     if (err.name === 'ValidationError') {
-      const validationErr = {};
-      for (const currentErr in err.errors) {
-        if ({}.hasOwnProperty.call(err.errors, currentErr)) {
-          validationErr.errors = {[currentErr]: err.errors[currentErr].message};
-        }
-      };
+      const errors = {};
+      for (const field of Object.keys(err.errors)) {
+        errors[field] = err.errors[field].message;
+      }
       ctx.status = 400;
-      ctx.body = validationErr;
+      ctx.body = {
+        errors: errors,
+      };
     } else {
       ctx.status = 500;
       ctx.body = err;
