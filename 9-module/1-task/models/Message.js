@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  
+
   chat: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -23,5 +23,14 @@ const messageSchema = new mongoose.Schema({
   },
 
 });
+
+messageSchema.methods.toJSONFor = function() {
+  return {
+    date: this.date,
+    text: this.text,
+    id: this._id,
+    user: this.user,
+  };
+};
 
 module.exports = connection.model('Message', messageSchema);
